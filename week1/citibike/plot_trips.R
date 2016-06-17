@@ -3,7 +3,8 @@
 ########################################
 
 # load some packages that we'll need
-library(dplyr)library(ggplot2)
+library(dplyr)
+library(ggplot2)
 library(reshape)
 library(scales)
 library(tidyr)
@@ -39,6 +40,7 @@ ggplot(trips, aes(x = birth_year, fill = as.factor(gender))) + geom_histogram(po
 # plot weather data
 ########################################
 # plot the minimum temperature over each day
+ggplot(weather, aes(x = ymd, y = tmin)) + geom_point()
 
 # plot the minimum temperature and maximum temperature over each day
 # hint: try using the gather() function for this to reshape things before plotting
@@ -50,12 +52,6 @@ ggplot(trips, aes(x = birth_year, fill = as.factor(gender))) + geom_histogram(po
 # join trips and weather
 trips_with_weather <- inner_join(trips, weather, by="ymd")
 
-<<<<<<< HEAD
-# plot the minimum temperature over each day
-ggplot(weather, aes(x = ymd, y = tmin)) + geom_point()
-
-=======
->>>>>>> 99e9ee98be50f773c22e73e60779dd63550a04d4
 # plot the number of trips as a function of the minimum temperature, where each point represents a day
 # you'll need to summarize the trips and join to the weather data to do this
 newdf <- trips_with_weather %>% group_by(ymd) %>% summarize(num = n())
