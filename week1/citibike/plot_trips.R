@@ -36,6 +36,19 @@ ggplot(trips, aes(x = birth_year, fill = as.factor(gender))) + geom_histogram(po
 # plot the ratio of male to female trips by age
 # hint: use the spread() function to reshape things to make it easier to compute this ratio
 
+#can first filter all F, all M. Then, join.
+
+#OR group_by year, them summarize( )
+
+#spread(gemder, numtrips)
+
+#spread("key" column to spread out, "values" to fill cells in with)
+View(trips)
+ratiodf <- trips %>% group_by(birth_year, gender) %>% summarize(total_trips = n()) %>% spread(gender, total_trips) %>% mutate(ratio = )
+View(ratiodf)
+
+#gather("gender", "numtrips", 2:4)
+
 ########################################
 # plot weather data
 ########################################
@@ -58,7 +71,7 @@ newdf <- trips_with_weather %>% group_by(ymd) %>% summarize(num = n())
 newdf2 <- inner_join(newdf, weather, by="ymd")
 ggplot(newdf2, mapping = aes(x = tmin, y = num)) + geom_point() + geom_smooth()
 
-  #>> in one line
+#>> in one line
 trips_with_weather %>% group_by(ymd) %>% summarize(num = n()) %>% inner_join(weather, by="ymd") %>% ggplot(aes(x = tmin, y = num)) + geom_point() + geom_smooth()
 
 
@@ -75,7 +88,17 @@ View(trips %>% mutate(starthour = hour(starttime), themonth = month(ymd)) %>% se
 sdtrip <- trips %>% mutate(hour = hour(starttime)) %>% group_by(ymd, hour) %>% summarize(num_trips=n()) %>% group_by(hour) %>% summarize(mean_trips = mean(num_trips), sd_trips = sd(num_trips))
 ggplot(sdtrip, mapping= aes(x = hour, y = mean_trips)) + geom_smooth() + geom_errorbar(ymin = sdtrip$mean_trips - sdtrip$sd_trips, ymax = sdtrip$mean_trips + sdtrip$sd_trips)
 
+#accounting for lost days
+sdtrip2 <- trips %>% mutate(hour = hour(starttime)) %>% group_by(ymd, hour) %>% summarize(num_trips=n()) %>% group_by(hour) %>% summarize(mean_trips = mean(num_trips), sd_trips = sd(num_trips))
+View(sdtrip2)
+
 # plot the above
 
 # repeat this, but now split the results by day of the week (Monday, Tuesday, ...) or weekday vs. weekend days
 # hint: use the wday() function from the lubridate package
+View(trips %>% mutate(starthour = hour(starttime), themonth = month(ymd)) %>% select(starttime, ymd, starthour, themonth) %>% group_by(starthour,themonth))
+sdtrip3 <- trips %>% mutate(hour = hour(starttime), day_of_week = wday(starttime, label = T)) %>% group_by(ymd, hour) %>% summarize(num_trips=n()) %>% group_by(hour) %>% summarize(mean_trips = mean(num_trips), sd_trips = sd(num_trips))
+View(sdtrip3)
+
+ggplot(sdtrip3, mapping= aes(x = hour, y = mean_trips)) + geom_smooth() + geom_errorbar(ymin = sdtrip$mean_trips - sdtrip$sd_trips, ymax = sdtrip$mean_trips + sdtrip$sd_trips)
+
