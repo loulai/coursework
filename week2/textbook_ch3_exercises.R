@@ -43,3 +43,41 @@ LoadLibraries = function(){
 
 LoadLibraries()
 
+#================Exercises
+#==8
+attach(Auto)
+lm.fit3 = lm(mpg ~ horsepower, data = Auto)
+summary(lm.fit3)
+#beta and p for Fstat is low, thus there is relationship
+#0.6 r squared is strong
+#negative relationship
+
+confint(lm.fit3)
+#8.525212 41.3465103
+
+plot(horsepower, mpg)
+abline(lm.fit3)
+#the data does not look linear
+
+#==9
+pairs(Auto)
+cor(Auto[sapply(Auto, is.numeric)])
+lm.fit4 = lm(mpg ~ . , data=Auto)
+summary(lm.fit4)
+#beta and p for Fstat is low, thus thre is relationship
+#ones with stars are statistitically significant (p == 0)
+#the larger the year, the higher the mpg
+plot(lm.fit4)
+#outlier residuals towards the end, no high leverage
+lm.fit5 = lm(mpg ~ year * weight, data = Auto)
+View(lm.fit5)
+summary(lm.fit5)
+lm.fit6 = lm(mpg ~ year)
+lm.fit7 = lm(mpg ~ year + I(year^2))
+anova(lm.fit6, lm.fit7)
+#F-stat is 18.758, low P stat. Reject the hyp that both fil equally well, 
+summary(lm.fit6)
+
+#==10
+lm.fit8 = lm(Sales ~ Price + Urban + US, data=Carseats)
+summary(lm.fit8)
