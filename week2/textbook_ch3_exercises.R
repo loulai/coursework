@@ -80,4 +80,19 @@ summary(lm.fit6)
 
 #==10
 lm.fit8 = lm(Sales ~ Price + Urban + US, data=Carseats)
+contrasts(Urban)
+contrasts(US)
 summary(lm.fit8)
+
+#Sales are lower when house is urban, higher if it is US
+#but urbanYES seems to have high p value
+#can reject Urban as a predictor
+lm.fit9 = lm(Sales ~ Price + US, data=Carseats)
+anova(lm.fit8, lm.fit9)
+#low F and high P, doesn't seem to fit much better, thus ca'nt reject that both graphs model equally well
+summary(lm.fit9)
+confint(lm.fit8)
+confint(lm.fit9)
+#conf intervals for Betas with/out the Urban don't change much
+plot(lm.fit9)
+#one point with super super high leverage, but low-medium standardized residuals
