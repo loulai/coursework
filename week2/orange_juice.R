@@ -1,5 +1,7 @@
 library(ggplot2)
 oj <- read.csv("oj.csv")
+View(oj)
+levels(oj$brand)
 
 #====
 #price distribution
@@ -42,6 +44,18 @@ summary(lm.fit3)
 #virtually same rsquares
 #the price increase will decrease poportionally less
 #individual price elasticities will decrease, but that is becuase price interaction term is considered
+plot(lm.fit3)
+abline(lm.fit3)
 
-View(oj)
+#===5
+foj<- oj %>% filter(feat == 1) %>% group_by(brand) 
+ggplot(foj, aes(brand)) + geom_bar() + ylab("number of features")
+View(foj)
 
+lm.fit4 <- lm(logmove ~ log(price)*brand + feat, data = oj)
+summary(lm.fit4)
+#if featured: then 0.8914 increase in sales. low p stat, significat
+#rsuared inproved to 0.5204
+
+lm.fit5 <- lm(logmove ~ feat*brand + brand*price, data = oj)
+summary(lm.fit5)
