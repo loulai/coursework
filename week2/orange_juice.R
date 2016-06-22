@@ -10,7 +10,10 @@ ggplot(oj, aes(price)) + geom_histogram() + geom_vline(xintercept = mean(oj$pric
 
 #brand distribution
 levels(oj$brand)
+lm.fit6 <- lm(logmove ~ log(price) + brand, data = oj)
+summary(lm.fit6)
 
+#2 wrong
 dom <- oj %>% filter(brand == "dominicks") 
 ggplot(dom, mapping = aes(dom$price)) + geom_histogram() + geom_vline(xintercept = mean(dom$price), linetype = 2, color = "red")
 
@@ -57,5 +60,12 @@ summary(lm.fit4)
 #if featured: then 0.8914 increase in sales. low p stat, significat
 #rsuared inproved to 0.5204
 
-lm.fit5 <- lm(logmove ~ feat*brand + brand*price, data = oj)
+lm.fit5 <- lm(logmove ~ feat*brand + brand*price - 1, data = oj)
 summary(lm.fit5)
+
+#plotting the regression
+ggplot(oj, aes(x = log(price), y = logmove, color = as.factor(feat))) + geom_point() + geom_smooth(method = "lm") + facet_wrap(~brand)
+
+oj$predicted <- fitted(lm.fit6)
+
+ggplot(oj, aes(x=log(price), y = logmove, color = brand)) + geom_point(alpha = 0.2) + geom_line(aes(x = log(price), y = predicted, color = brand))
