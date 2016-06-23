@@ -81,7 +81,61 @@ summary(lm.fit10)
 
 #=== Q3 (training / test split)
 
-indexes <- sample(1:nrow(oj), size = 0.2 * nrow(oj))
+index <- sample(1:nrow(oj), size = 0.2 * nrow(oj))
+ojtest = oj[index, ]   #5789
+ojtrain = oj[-index,]  #23158
+
+#=== Q4 
+
+lm.fit11 <- lm(logmove ~ log(price) + brand, ojtest)
+summary(lm.fit11)
+#rsq=0.3911
+
+predicted_sales <- predict(lm.fit11, ojtest)
+cor(predicted_sales, ojtest$logmove) ^ 2
+#honest rsq=0.391149
+
+#=== Q5
+
+lm.fit12 <- lm(logmove ~ brand*log(price)*feat, ojtest)
+summary(lm.fit12)
+#rsq=0.5277
+
+predicted_sales2 <- predict(lm.fit12, ojtest)
+cor(predicted_sales2, ojtest$logmove) ^ 2
+#honest rsq=0.5276755
+
+#both models do alright on the test data
+#rsq only increase a little
+
+lm.fit13 <- lm(logmove ~ brand*log(price)*feat + AGE60 + EDUC + ETHNIC + INCOME, ojtrain)
+summary(lm.fit13)
+#rsq=0.5707
+
+predicted_sales3 <- predict(lm.fit13, ojtest)
+cor(predicted_sales3, ojtest$logmove) ^ 2
+#rsq=0.557498
+
+#rsq became worse, presumably because test was overfitted
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #==========================[JUNK]==========================
 #plot_data <- expand.grid(price = unique(oj$price),
