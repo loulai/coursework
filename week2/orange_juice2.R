@@ -1,28 +1,31 @@
 library(ggplot2)
 oj <- read.csv("oj.csv")
-#===============
+
+#=== Q1 (how demographics affect demand)
 
 lm.fit1 <- lm(logmove ~ log(price) * brand * feat, oj)
-summary(lm.fit1) #rsq 0.5354 
+summary(lm.fit1) #rsq=0.5354 
 
 lm.fit2 <- lm(logmove ~ log(price) * brand * feat + AGE60, oj)
-summary(lm.fit2) #0.5488  t=23.354
+summary(lm.fit2) #rsq=0.5488  t=23.354
 
 lm.fit3 <- lm(logmove ~ log(price) * brand * feat + EDUC, oj)
-summary(lm.fit3) #rsq 0.5357  t=4.46
+summary(lm.fit3) #rsq=0.5357  t=4.46
 
 lm.fit4 <- lm(logmove ~ log(price) * brand * feat +  ETHNIC, oj)
-summary(lm.fit4) #rsq 0.5417  t=19.873
+summary(lm.fit4) #rsq=0.5417  t=19.873
 
 lm.fit5 <- lm(logmove ~ log(price) * brand * feat + INCOME, oj)
-summary(lm.fit5) #rsq 0.5389  t=-14.92
+summary(lm.fit5) #rsq=0.5389  t=-14.92
 
 lm.fit6 <- lm(logmove ~ log(price) * brand * feat + AGE60 + EDUC + ETHNIC + INCOME, oj)
-summary(lm.fit6) #rsq 0.5681  all are > 2
+summary(lm.fit6) #rsq=0.5681  
 
+#all are > 2
 #r improved from 0.5354 to 0.5681
 
-#====== Q2
+#====== Q2 (focus on HHLarge and EDUC)
+
 mean_hh = mean(oj$HHLARGE)
 View(mean_hh) #0.1156024
 
@@ -52,10 +55,36 @@ EDUbeta <- 0.16576
 EDUchange <- (EDUbeta * 0.28440) - (EDUbeta * 0.22940) #Q3 - Median
 EDUchange #0.0091
 
+#Household size > Education for prediction
 
-cofficients <- coef(lm.fit8)[6:12]
+#=== Q2 iii (interaction terms)
 
-#mutate(variable = reorder(variable, value))
+# Added interaction
+lm.fit9 <- lm(logmove ~ log(price) * brand * feat + log(price) * HHLARGE + log(price) *  EDUC, oj)
+summary(lm.fit9)
 
-plot_data <- tidy(model) %>%
-  mutate(term = reorder(term, estimate))
+# No interaction 
+lm.fit10 <- lm(logmove ~ log(price) * brand * feat + HHLARGE + EDUC, oj)
+summary(lm.fit10) 
+
+#                               Interaction   No Interaction
+# HHLARGE                           0.91991   -2.87752 
+# EDUC                             -3.05531   -0.14131
+
+# log(price):HHLARGE               -4.72898    
+# log(price):EDUC                   3.69490 
+
+# log(price)                       -3.09620   -2.79278 
+
+#Ans: Logmove is much more sensitive to price with the interaction term. i.e. hold HHL constant, but increase price by 1. 
+#There will be more sales lost when interaction term is considered.
+
+#=== Q3 (training / test split)
+
+indexes <- sample(1:nrow(oj), size = 0.2 * nrow(oj))
+
+#==========================[JUNK]==========================
+#plot_data <- expand.grid(price = unique(oj$price),
+                        # HHLARGE = quantile(oj$HHLARGE, c(0.25, 0.5, 0.75)),
+                        # EDUC = quantile(oj$EDUC, c(0.25, 0.5, 0.75)))
+#plot_data$predicted <- predict(lm.fit8, plot_data)

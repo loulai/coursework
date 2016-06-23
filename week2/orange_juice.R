@@ -69,3 +69,4 @@ ggplot(oj, aes(x = log(price), y = logmove, color = as.factor(feat))) + geom_poi
 oj$predicted <- fitted(lm.fit6)
 
 ggplot(oj, aes(x=log(price), y = logmove, color = brand)) + geom_point(alpha = 0.2) + geom_line(aes(x = log(price), y = predicted, color = brand))
+
