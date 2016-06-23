@@ -53,3 +53,9 @@ EDUchange <- (EDUbeta * 0.28440) - (EDUbeta * 0.22940) #Q3 - Median
 EDUchange #0.0091
 
 
+cofficients <- coef(lm.fit8)[6:12]
+
+#mutate(variable = reorder(variable, value))
+
+plot_data <- tidy(model) %>%
+  mutate(term = reorder(term, estimate))
