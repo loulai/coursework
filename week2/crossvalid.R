@@ -51,8 +51,27 @@ quad_corr #0.7344676, improved!
 
 View(twwtrain)
 
+#===== Q5 (automating quadratic fitting)
+Rtrain <- c()
+Rtest <- c()
+quadratic_power <- c()
 
+for(k in 1:20){
+  lm.quad <- lm(total_trips ~ tmin + poly(tmin, k), data=twwtrain)
+  quad_predicted_values_train <- predict(lm.quad, twwtrain)
+  quad_predicted_values <- predict(lm.quad, twwtest)
+  quadratic_power[k] <- k
+  Rtrain[k] <- cor(quad_predicted_values_train, twwtrain$total_trips) ^ 2
+  Rtest[k] <- cor(quad_predicted_values, twwtest$total_trips) ^ 2
+}
 
+Rtrain
+Rtest
+quadratic_power
+
+Rvalues <- data.frame(Rtrain, Rtest)
+
+ggplot() + geom_line(aes(x = quadratic_power, y = Rtrain), color = "red") + geom_line(aes(x = quadratic_power, y = Rtest), color = "blue") + ylab("R Squared")
 
 
 #==========[NOTES]==========
