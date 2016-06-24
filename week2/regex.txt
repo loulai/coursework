@@ -1,0 +1,4 @@
+grep '^Subject:' 20_newsgroups*/*/
+
+
+2. for D in 'find . -type d`: do echo $D; egrep -i ".*baseball. *" $D/* | wc -l; done
