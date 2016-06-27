@@ -13,8 +13,8 @@ View(trips)
 ?filter
 #tww = trips with weather
 tww <- trips  %>% group_by(ymd) %>% dplyr::summarise(total_trips = n())  #otherwise conflicts with plyr
-tww <- inner_join(tday, weather, "ymd") 
-tww <- select(tday, ymd, tmin, total_trips) 
+tww <- inner_join(tww, weather, "ymd") 
+tww <- select(tww, ymd, tmin, total_trips) 
 tww <- filter(tww, year(tww$ymd) == 2014)
 
 View(tww)
