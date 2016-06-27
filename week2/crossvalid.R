@@ -26,6 +26,7 @@ View(weather)
 index <- sample(1:nrow(tww), size = 0.2 * nrow(tww))
 twwtest = tww[index, ]   #73
 twwtrain = tww[-index,]  #293
+nrow(twwtrain)
 
 #===== Q3 (fitting model)
  
@@ -58,21 +59,29 @@ quadratic_power <- c()
 
 for(k in 1:20){
   lm.quad <- lm(total_trips ~ tmin + poly(tmin, k), data=twwtrain)
-  quad_predicted_values_train <- predict(lm.quad, twwtrain)
-  quad_predicted_values <- predict(lm.quad, twwtest)
+  predict_train <- predict(lm.quad, twwtrain)
+  predict_test <- predict(lm.quad, twwtest)
   quadratic_power[k] <- k
-  Rtrain[k] <- cor(quad_predicted_values_train, twwtrain$total_trips) ^ 2
-  Rtest[k] <- cor(quad_predicted_values, twwtest$total_trips) ^ 2
+  Rtrain[k] <- cor(predict_train, twwtrain$total_trips) ^ 2
+  Rtest[k] <- cor(predict_test, twwtest$total_trips) ^ 2
 }
 
-Rtrain
-Rtest
-quadratic_power
+Rvalues <- data.frame(quadratic_power, Rtrain, Rtest)
 
-Rvalues <- data.frame(Rtrain, Rtest)
+View(Rvalues)
+ggplot(Rvalues) + geom_line(aes(quadratic_power, Rtrain), color="red") + geom_line(aes(quadratic_power, Rtest), color="blue") + labs(color = "Test Data")
 
-ggplot() + geom_line(aes(x = quadratic_power, y = Rtrain), color = "red") + geom_line(aes(x = quadratic_power, y = Rtest), color = "blue") + ylab("R Squared")
+#===== Q6 (plotting graph with best k)
 
+which.max(Rvalues$Rtest) #best fit: k = 4
+Rvalues$Rtest[4] #0.6938476
+
+which.min(Rvalues$Rtest) #worst fi: k = 20
+Rvalues$Rtest[20] #0.0654375
+
+lm.fit3 <- lm(total_trips ~ tmin + poly(tmin, 4), data = twwtrain) 
+predicted1 <- predict(lm.fit3, twwtest)
+ggplot() + geom_line(data = twwtest, aes(tmin, predicted1)) + geom_point(data=twwtest, aes(tmin, total_trips))
 
 #==========[NOTES]==========
 #detach("package:plyr", unload=TRUE) 
