@@ -13,24 +13,54 @@ View(weather)
 
 df <- trips %>% group_by(ymd) %>% dplyr::summarise(total_trips = n())  
 df <- inner_join(df, weather, "ymd") 
-View(df)
+index <- sample(1:nrow(df), size = 0.2 * nrow(df))
+train = df[-index,]      #292
+validation = df[index,]  #73
 
 #---- FUNCTIONS
 
 mse <- function(lmfit)
   sqrt(mean((summary(lmfit)$residuals)^2))
 
+if(FALSE){ #_______IGNORE___________
+  mse.avg <- function(predictors)
+    array_of_mse[]
+  while (i < 21){
+    #creating random 20% test
+    index <- sample(1:nrow(df), size = 0.2 * nrow(df))
+    train = df[-index,]      #292
+    validation = df[index,]  #73
+    model <- lm(df$total_trips, )
+  }
+  
+  
+  make_lm <- function(p1){
+    index <- sample(1:nrow(df), size = 0.2 * nrow(df))
+    train = df[-index,]      #292
+    model <- lm.fit(total_trips ~ p1, data = train)
+    summary(model)
+  }
+  make_lm("prcp")
+  # lm.fit1 <- lm(total_trips ~ train[,2:5], data=train)
+} #_____________IGNORE_______________
+
+
 #===== fitting everything to see most significant ones
 
-#based on unmodified data (i.e. no mutates)
-lm.fit1 <- lm(total_trips ~ ., data = df)
-summary(lm.fit1)
-pred1 <- predict(lm.fit1, df)
-df <- mutate(df, predicted = pred1)
+#selecting all 'fair' data
+df <- select(df, ymd, total_trips, prcp, snwd, snow, tmin, tmax) 
 View(df)
 
+#based on unmodified data (i.e. no mutates)
+View(train)
+lm.fit1 <- lm(total_trips ~ ., data = train)
+summary(lm.fit1)
+pred1 <- predict(lm.fit1, validation)
+validation <- mutate(validation, predicted = pred1)
+View(validation)
+
 #plotting predicted vs real
-ggplot(df, aes(predicted, total_trips)) + geom_point()
+ggplot(validation, aes(predicted, total_trips)) + geom_point()
 
 #plotting regression: predicted is red, actual is grey
 ggplot(data = test) + geom_point(aes(tmin, total_trips), color = "gray") + geom_point(aes(tmin, predicted), color = "red")
@@ -40,10 +70,10 @@ mse(lm.fit1)
 #>>mean-squared error: 3956.24
 
 #using only prcp, snws, tmax
-lm.fit3 <- lm(total_trips ~ prcp + snwd + tmax, data = df)
-pred3 <- predict(lm.fit3, df)
-df <- mutate(df, predicted3 = pred3)
-View(df)
+lm.fit3 <- lm(total_trips ~ prcp + snwd + tmax, data = train)
+pred3 <- predict(lm.fit3, validation)
+validation <- mutate(validation, predicted3 = pred3)
+View(validation)
 mse(lm.fit3)
 
 #>> MSE: 4654.822 (improvement by 27.385)
