@@ -13,18 +13,97 @@ View(weather)
 
 df <- trips %>% group_by(ymd) %>% dplyr::summarise(total_trips = n())  
 df <- inner_join(df, weather, "ymd") 
+
+index <- sample(1:nrow(df), size = 0.2 * nrow(df))
+train = df[-index,]      #292
+validation = df[index,]  #73
+
 View(df)
+View(train)
+View(validation)
 
 #---- FUNCTIONS
 
-mse <- function(lmfit)
-  sqrt(mean((summary(lmfit)$residuals)^2))
+mse <- function(lmfit, validation_df){
+  #obtaining vector of predicted trips from model fit on TRAIN, but testing on VALIDATION
+  pred <- predict(lmfit, validation_df)
+  #adding residuals_squared column to validation data frame
+  validation_df <- mutate(validation_df %>% mutate(residual_squared = (total_trips - pred)^2))
+  #formula for MSE applied
+  meansq <- sqrt(mean(validation_df$residual_squared))
+  meansq
+}
+
+array_of_mse <- function(lmfit){
+  df$fold <- sample(1:5, nrow(df), replace = T) #assigning 1 to 5 to each day
+  i = 1
+  array_mse <- c(1:5)
+  while(i <= 5){
+    train <- filter(df, fold != i) #train is 80% of data (i.e. fold == 2, 3, 4, 5)
+    test <- filter(df, fold == i)
+    array_mse[i] <- mse(lmfit, test)
+    i = i + 1
+  }
+ return(array_mse)
+}
+
+mse_five <- function(lmfit)
+  return(mean(array_of_mse(lmfit)))
+
+standard_error <- function(array_of_mse)
+  sd(array_of_mse)/sqrt(length(array_of_mse))
+
+cross_mse<- function(lmfit, folds){
+  View(df)
+  shuffled <- df[sample(nrow(df)),] #shuffling data frame
+  i = 1 #initializing counter
+  array_mse <- c(1,2,3) #dummy numbers to initiate array
+  while(i < folds){
+    index = i * (nrow(shuffled)/folds)
+    array_mse[i] <- mse(lmfit, shuffled[1:index,])
+    print(array_mse[i])
+    i = i + 1
+  }
+  return(mean(array_mse))
+}
 
 graph_predicted <- function(lmfit){
   pred <- predict(lmfit, df)
   df <- mutate(df, predicted = pred)
   ggplot() + geom_point(aes(predicted, total_trips), data = df) 
 }
+
+#----
+
+#===== is_hot * tmax
+lm.fit8 <- lm(total_trips ~ is_hot*tmax + is_heavy_rain*prcp + is_holiday + is_weekend + snwd, data = df)
+summary(lm.fit8)
+mse(lm.fit8, validation)
+#>> MSE: 3112.111 (improved by 84.81) <<<< favourite model, everything below is overfit
+
+#sqrt(mean((summary(lmfit)$residuals)^2))
+index <- sample(1:nrow(df), size = 0.2 * nrow(df))
+train = df[-index,]      #292
+validation = df[index,]  #73
+
+pred <- predict(lm.fit8, validation)
+validation <- mutate(validation %>% mutate(residual_squared = (total_trips - pred)^2))
+meansq <- sqrt(mean(validation$residual_squared))
+meansq
+View(validation)
+mse(lm.fit8)
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -36,6 +115,7 @@ summary(lm.fit1)
 pred1 <- predict(lm.fit1, df)
 df <- mutate(df, predicted = pred1)
 View(df)
+View(trips)
 
 #plotting predicted vs real
 ggplot(df, aes(predicted, total_trips)) + geom_point()
@@ -130,23 +210,33 @@ lm.fit7 <- lm(total_trips ~ is_hot + is_heavy_rain*prcp + is_holiday + is_weeken
 mse(lm.fit7)
 #>> MSE: 3196.921 (improved by 118.847)
 
-#===== is_hot * tmax
-lm.fit8 <- lm(total_trips ~ is_hot*tmax + is_heavy_rain*prcp + is_holiday + is_weekend + snwd, data = df)
-summary(lm.fit8)
-mse(lm.fit8)
-#>> MSE: 3112.111 (improved by 84.81)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #===== is_cold
 df <- mutate(df, is_cold = (tmax*10) < 50)
 lm.fit9 <- lm(total_trips ~ is_cold + is_hot*tmax + is_heavy_rain*prcp + is_holiday + is_weekend + snwd, data = df)
 mse(lm.fit9)
-#>> MSE: 3088.501 (improved by )
+#>> MSE: 3088.501 (improved by 23.61)
 
 #===== is_cold * tmin
 lm.fit10 <- lm(total_trips ~ is_cold*tmin + is_hot*tmax + is_heavy_rain*prcp + is_holiday + is_weekend + snwd, data = df)
 summary(lm.fit10)
 mse(lm.fit10)
-#>> MSE: 2993.919 (improved by )
+#>> MSE: 2993.919 (improved by 94.582)
 
 #===== day_of_week
 df <- mutate(df, day_of_week = wday(ymd))
@@ -154,7 +244,7 @@ View(df)
 lm.fit11 <- lm(total_trips ~ day_of_week + is_cold*tmin + is_hot*tmax + is_heavy_rain*prcp + is_holiday + is_weekend + snwd, data = df)
 summary(lm.fit11)
 mse(lm.fit11)
-#>> MSE: 2960.2 (improved by )
+#>> MSE: 2960.2 (improved by 33.7)
 
 #===== graphing predicted v real
 graph_predicted(lm.fit11) 
@@ -174,8 +264,8 @@ View(df)
 lm.fit12 <- lm(total_trips ~ is_snowing + is_cold*tmin + is_hot*tmax + is_heavy_rain*prcp + is_holiday + is_weekend + snwd, data = df)
 summary(lm.fit12)
 mse(lm.fit12)
-#>> MSE: 2993.756 (improved by a fraction, not worthy)
 
+#>> MSE: 2993.756 (got worse!)
 
 
 #-------------------
