@@ -15,7 +15,7 @@ View(df)
 
 #===== Ridge Regression
 
-x = model.matrix(total_trips ~ ., df)[,-1] #taking everythign EXCLUDING AtBat, which is column 1 (?)
+x = model.matrix(total_trips ~ is_hot*tmax + is_heavy_rain*prcp + is_holiday + is_weekend + snwd, df) #taking everythign EXCLUDING AtBat, which is column 1 (?)
 y = df$total_trips
 View(x)
 

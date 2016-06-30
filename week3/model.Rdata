@@ -1,0 +1,1 @@
+lm.fit8 <- lm(total_trips ~ is_hot*tmax + is_heavy_rain*prcp + is_holiday + is_weekend + snwd, data = df)
