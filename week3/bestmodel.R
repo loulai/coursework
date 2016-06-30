@@ -2,12 +2,12 @@ library(dplyr)
 library(plyr)
 library(ggplot2)
 library(lubridate)
-library(dplyr)
+library(dplyr) 
 
-load('trips.RData')
+load('trips_2015.RData')
 
 #---- PREPARATION
-
+View(weather)
 df <- trips %>% group_by(ymd) %>% dplyr::summarise(total_trips = n())  
 df <- inner_join(df, weather, "ymd") 
 

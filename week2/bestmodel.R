@@ -60,6 +60,7 @@ graph_predicted <- function(lmfit){
   df <- mutate(df, predicted = pred)
   ggplot() + geom_point(aes(predicted, total_trips), data = df) 
 }
+View(trips)
 
 
 ###########################################################################################
@@ -72,6 +73,7 @@ df <- mutate(df, is_hot = (tmax*10) > 80,
              is_holiday = ymd %in% as.Date(holiday_dates),
              is_weekend = wday(ymd) == 1 | wday(ymd) == 7)
 
+
 df <- mutate(df, is_snowing = snow > 0)
 df <- mutate(df, day_of_week = wday(ymd))
 df <- mutate(df, is_cold = (tmax*10) < 50)
@@ -82,10 +84,12 @@ View(df)
 ###########################################################################################
 
 #===== [FAVOURITE MODEL] >>> is_hot * tmax <<<
-lm.fit8 <- lm(total_trips ~ is_hot*tmax + is_heavy_rain*prcp + is_holiday + is_weekend + snwd, data = df)
+lm.fit8 <- lm(total_trips ~ is_hot*tmax + is_heavy_rain*prcp + is_holiday + is_weekend + snwd, data = train)
 summary(lm.fit8)
 avg_rmse(lm.fit8)
 standard_error(array_of_rmse(lm.fit8))
+
+save(lm.fit8, file = 'model.Rdata')
 
 View(df)
 #>> RMSE: 3112.111 (improved by 84.81) <<<< favourite model, everything below is overfit =======
@@ -273,7 +277,7 @@ df <- mutate(df, is_snowing = snow > 0)
 View(df)
 lm.fit12 <- lm(total_trips ~ is_snowing + is_cold*tmin + is_hot*tmax + is_heavy_rain*prcp + is_holiday + is_weekend + snwd, data = df)
 summary(lm.fit12)
-rmse(lm.fit12)
+avg_rmse(lm.fit12)
 
 #>> RMSE: 2993.756 (got worse!)
 
