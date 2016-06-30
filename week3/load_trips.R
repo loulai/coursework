@@ -44,17 +44,17 @@ trips <- mutate(trips, gender=factor(gender, levels=c(0,1,2), labels=c("Unknown"
 # https://www.ncei.noaa.gov/orders/cdo/762757.csv
 # ordered from
 # http://www.ncdc.noaa.gov/cdo-web/datasets/GHCND/stations/GHCND:USW00094728/detail
-weather <- read.table('weather_2015.csv', header=T, sep=',')
+weather_2015 <- read.table('weather_2015.csv', header=T, sep=',')
 
 # extract just a few columns, lowercase column names, and parse dates
-weather <- select(weather, DATE, PRCP, SNWD, SNOW, TMAX, TMIN)
-names(weather) <- tolower(names(weather))
-weather <- mutate(weather,
+weather_2015 <- select(weather_2015, DATE, PRCP, SNWD, SNOW, TMAX, TMIN)
+names(weather_2015) <- tolower(names(weather_2015))
+weather_2015 <- mutate(weather_2015,
                   tmin = tmin / 10,
                   tmax = tmax / 10,
                   ymd = as.Date(parse_datetime(date, "%Y%m%d")))
-weather <- tbl_df(weather)
+weather_2015 <- tbl_df(weather_2015)
 
 # save data frame for easy loading in the future
-save(trips, weather, file='trips_2015.RData')
+save(trips, weather_2015, file='trips_2015.RData')
 
