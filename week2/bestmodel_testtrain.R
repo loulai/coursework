@@ -45,6 +45,20 @@ if(FALSE){ #_______IGNORE___________
 } #_____________IGNORE_______________
 
 
+cross_mse<- function(lmfit, folds){
+  View(df)
+  shuffled <- df[sample(nrow(df)),] #shuffling data frame
+  i = 1 #initializing counter
+  array_mse <- c(1,2,3) #dummy numbers to initiate array
+  while(i < folds){
+    index = i * (nrow(shuffled)/folds)
+    array_mse[i] <- mse(lmfit, shuffled[1:index,])
+    print(array_mse[i])
+    i = i + 1
+  }
+  return(mean(array_mse))
+}
+
 #===== fitting everything to see most significant ones
 
 #selecting all 'fair' data

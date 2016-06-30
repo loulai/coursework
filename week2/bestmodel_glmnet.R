@@ -1,13 +1,22 @@
-install.packages("glmnet")
+library(dplyr)
+library(plyr)
+library(ggplot2)
+library(lubridate)
+library(dplyr)
 library(glmnet)
 library(ISLR)
+load('trips.RData')
+
+##---- PREPARATION
+
+df <- trips %>% group_by(ymd) %>% dplyr::summarise(total_trips = n())  
+df <- inner_join(df, weather, "ymd") 
+View(df)
 
 #===== Ridge Regression
 
-#ommiting rows with NA
-Hitters = na.omit(Hitters)
-x = model.matrix(Salary ~ ., Hitters)[,-1] #taking everythign EXCLUDING AtBat, which is column 1
-y = Hitters$Salary
+x = model.matrix(total_trips ~ ., df)[,-1] #taking everythign EXCLUDING AtBat, which is column 1 (?)
+y = df$total_trips
 View(x)
 
 #implementing a function over a grid of values ranging from lamda = 10^10 to 10^-2
@@ -29,26 +38,26 @@ ridge.mod = glmnet(x[train,], y[train], alpha = 0, lambda = grid, thresh=1e-12)
 ridge.pred = predict(ridge.mod, s=4, newx=x[test,])
 
 #MSE using lamba = 4
-mean((ridge.pred-y.test)^2) #101036.8
+mean((ridge.pred-y.test)^2) #24,888,048
 
 #comparing ridge with least squares (lamba == 4 > lamba == 0?)
 ridge.pred=predict(ridge.mod, s = 0, newx=x[test,], extract=T)
-mean((ridge.pred-y.test)^2) #114723.6
+mean((ridge.pred-y.test)^2) #25,192,857
 
 #choosing tuning parameter
 set.seed(1)
 cv.out = cv.glmnet(x[train,], y[train], alpha = 0)
 plot(cv.out)
 bestlam=cv.out$lambda.min
-bestlam #340.8295 = lamba that gives the smallest cross=validation error
+bestlam #2573.666 = lamba that gives the smallest cross=validation error
 
 #what is MSE associated with this value of lambda?
 ridge.pred = predict(ridge.mod, s = bestlam, newx=x[test,])
-mean((ridge.pred-y.test)^2) #132690
+mean((ridge.pred-y.test)^2) #26,701,396
 
 #refit ridge regression model on full data set, using lambda chosen by cross validation
 out=glmnet(x, y, alpha = 0)
-predict(out,type="coefficients",s=bestlam)[1:20,]
+predict(out,type="coefficients",s=bestlam)[1:8,]
 
 #================================== Lasso
 

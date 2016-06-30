@@ -8,7 +8,6 @@ load('trips.RData')
 View(trips)
 View(weather)
 
-
 #---- PREPARATION
 
 df <- trips %>% group_by(ymd) %>% dplyr::summarise(total_trips = n())  
@@ -24,6 +23,7 @@ View(validation)
 
 #---- FUNCTIONS
 
+#calculates the mean squared error of a model on a given testing set
 mse <- function(lmfit, validation_df){
   #obtaining vector of predicted trips from model fit on TRAIN, but testing on VALIDATION
   pred <- predict(lmfit, validation_df)
@@ -34,6 +34,7 @@ mse <- function(lmfit, validation_df){
   meansq
 }
 
+#returns an array of 5 mse's (to be used in other functions, like standard_error)
 array_of_mse <- function(lmfit){
   df$fold <- sample(1:5, nrow(df), replace = T) #assigning 1 to 5 to each day
   i = 1
@@ -53,32 +54,21 @@ mse_five <- function(lmfit)
 standard_error <- function(array_of_mse)
   sd(array_of_mse)/sqrt(length(array_of_mse))
 
-cross_mse<- function(lmfit, folds){
-  View(df)
-  shuffled <- df[sample(nrow(df)),] #shuffling data frame
-  i = 1 #initializing counter
-  array_mse <- c(1,2,3) #dummy numbers to initiate array
-  while(i < folds){
-    index = i * (nrow(shuffled)/folds)
-    array_mse[i] <- mse(lmfit, shuffled[1:index,])
-    print(array_mse[i])
-    i = i + 1
-  }
-  return(mean(array_mse))
-}
-
 graph_predicted <- function(lmfit){
   pred <- predict(lmfit, df)
   df <- mutate(df, predicted = pred)
   ggplot() + geom_point(aes(predicted, total_trips), data = df) 
 }
 
-#----
+###########################################################################################
 
 #===== is_hot * tmax
 lm.fit8 <- lm(total_trips ~ is_hot*tmax + is_heavy_rain*prcp + is_holiday + is_weekend + snwd, data = df)
 summary(lm.fit8)
-mse(lm.fit8, validation)
+mse_five(lm.fit8)
+
+standard_error(array_of_mse(lm.fit8))
+View(df)
 #>> MSE: 3112.111 (improved by 84.81) <<<< favourite model, everything below is overfit
 
 #sqrt(mean((summary(lmfit)$residuals)^2))
@@ -93,19 +83,7 @@ meansq
 View(validation)
 mse(lm.fit8)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+#############################################################################################
 
 #===== fitting everything to see most significant ones
 
