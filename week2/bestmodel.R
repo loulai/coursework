@@ -84,7 +84,7 @@ View(df)
 ###########################################################################################
 
 #===== [FAVOURITE MODEL] >>> is_hot * tmax <<<
-lm.fit8 <- lm(total_trips ~ is_hot*tmax + is_heavy_rain*prcp + is_holiday + is_weekend + snwd, data = train)
+lm.fit8 <- lm(total_trips ~ is_hot*tmax + is_heavy_rain*prcp + is_holiday + is_weekend + snwd, data = df)
 summary(lm.fit8)
 avg_rmse(lm.fit8)
 standard_error(array_of_rmse(lm.fit8))
