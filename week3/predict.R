@@ -17,7 +17,7 @@ weather_2015 <- mutate(weather_2015,
                   tmin = tmin / 10,
                   tmax = tmax / 10,
                   ymd = as.Date(parse_datetime(date, "%Y%m%d")))
-weather_2015 <- tbl_df(weather)
+weather_2015 <- tbl_df(weather_2015)
 
 # add additional features (is_weekend, is_holiday)
 holiday_dates <- c("2014-01-01", "2014-01-20", "2014-02-17", "2014-05-26", "2014-07-04", "2014-09-01", "2014-10-13", "2014-11-11", "2014-11-27", "2014-12-25",
@@ -30,5 +30,6 @@ weather_2015 <- mutate(weather_2015, is_hot = (tmax*10) > 80,
 
 ############################
 weather_2015$predicted <- predict(lm.fit8, weather_2015)
+ggplot() + geom_point(aes(ymd, predicted), data = weather_2015)
 View(weather_2015)
 save(lm.fit8, file = "model.Rdata")
