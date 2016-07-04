@@ -12,7 +12,7 @@ parse_datetime <- function(s, format="%Y-%m-%d %H:%M:%S") {
 
 # load each month of the trip data into one big data frame
 csvs <- Sys.glob('*-tripdata.csv')
-trips <- data.frame()
+trips_2015 <- data.frame()
 for (csv in csvs) {
   print(csv)
   tmp <- read_csv(csv, na='\\N')
@@ -24,17 +24,17 @@ for (csv in csvs) {
                   starttime=parse_datetime(starttime, "%m/%d/%Y %H:%M:%S"),
                   stoptime=parse_datetime(stoptime, "%m/%d/%Y %H:%M:%S"))
 
-  trips <- rbind(trips, tmp)
+  trips_2015 <- rbind(trips_2015, tmp)
 }
 
 # replace spaces in column names with underscores
-names(trips) <- gsub(' ', '_', names(trips))
+names(trips_2015) <- gsub(' ', '_', names(trips_2015))
 
 # add a column for year/month/day (without time of day)
-trips <- mutate(trips, ymd=as.Date(starttime))
+trips_2015 <- mutate(trips_2015, ymd=as.Date(starttime))
 
 # recode gender as a factor 0->"Unknown", 1->"Male", 2->"Female"
-trips <- mutate(trips, gender=factor(gender, levels=c(0,1,2), labels=c("Unknown","Male","Female")))
+trips_2015 <- mutate(trips_2015, gender=factor(gender, levels=c(0,1,2), labels=c("Unknown","Male","Female")))
 
 ########################################
 # load and clean weather data
@@ -56,5 +56,5 @@ weather_2015 <- mutate(weather_2015,
 weather_2015 <- tbl_df(weather_2015)
 
 # save data frame for easy loading in the future
-save(trips, weather_2015, file='trips_2015.RData')
+save(trips_2015, weather_2015, file='trips_2015.RData')
 

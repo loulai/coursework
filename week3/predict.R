@@ -1,5 +1,5 @@
 # DATA FRAME PREP & ADDITIONS
-
+View(weather_2015)
 #load model                              
 load('model.Rdata')
 
