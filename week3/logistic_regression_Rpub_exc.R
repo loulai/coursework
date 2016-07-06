@@ -23,7 +23,7 @@ test_mf$pred <- predict(logit1, test_mf, type="response")
 View(test_mf)
 # >> male: 19.0%, female: 74.2% probability that they will survive
 
-### controlling for gender, does age have an impact on odds of survival? What magnitude?
+### 3. controlling for gender, does age have an impact on odds of survival? What magnitude?
 logit2 <- glm(Survived ~ Sex + Age, data = t, family = "binomial")
 summary(logit2)
 exp(coef(logit2))
@@ -54,6 +54,39 @@ View(test_age)
 test_age <- arrange(test_age, desc(pred))
 #wow, the oldest woman still has the highest chance of surviving compared to the youngest male
 
-##### controlling for gender, does class have an effect? magnitude?
-logit3 <- glm(Survived)
+##### 4. controlling for gender, does class have an effect? magnitude?
+logit3 <- glm(Survived ~ Pclass, data=t, family = "binomial")
+summary(logit3)
+exp(coef(logit3))
+#Pclass 
+#0.4273693 #tbh not sure that this means. 60% less likely odds if class increases? 
 
+##### controlling for gender, what is the effect of 2nd relative to 1st, and 3rd relative to 1st 
+test_pclass <- data.frame(Pclass=c(1,2,3))
+test_pclass$pred <- predict(logit3, test_pclass, type="response")
+View(test_pclass)
+test_pclass
+#1 0.6448970
+#2 0.4369809 (-20%)
+#3 0.2490789 (-20%)
+
+##### 6 is fare a significant determinant of survival?
+logit4 <- glm(Survived ~ Sex + Pclass + Fare, data = t, family="binomial")
+summary(logit4) #fare t=0.475, not significant
+#it's not significant becuase fare is correlated to Pclass. Thus, Pclass actually explains fare
+
+##### 7 Jack and Rose surviving
+logit5 <- glm(Survived ~ Sex + Fare, data=t, family="binomial") #assuming all we know is sex and fare
+summary(logit5)
+
+test_jackrose <- data.frame(Sex=c("female", "male"), Fare=c(500,5))
+test_jackrose$pred <- predict(logit5, test_jackrose, type="response")
+View(test_jackrose)
+# Rose: 99.8%
+# Jack: 15.19%
+
+##### 8 Own creation
+#todo!
+
+
+# Q's: how to interpert exp(coef(logit1)) = 0.08? Why does it mean 92% decr, and not just 8% increase?
