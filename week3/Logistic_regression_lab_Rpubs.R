@@ -58,7 +58,7 @@ sample <- sample(nrow(loan), floor(nrow(loan)*0.8))
 train <- loan[sample,]
 test <- loan[-sample,]
 
-ogit5 <- glm(good ~ fico + loan_amnt + income + purpose, data = loan, family = "binomial")
+logit5 <- glm(good ~ fico + loan_amnt + income + purpose, data = loan, family = "binomial")
 test$pred <- predict(logit5, test, type="response")
 
 test$good_pred <- ifelse(test$pred > 0.80, "good", "bad")
