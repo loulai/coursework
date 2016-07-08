@@ -41,17 +41,11 @@ if __name__ == '__main__':
         dict[key].append(int(value))
     
     for k in dict:
-      minimum = min(dict[k])
-      mean = find_mean(dict[k])
-      maximum = max(dict[k])
-      med = find_median(dict[k])
       print(sorted(dict[k]))
       print "%s\t%s\t%s\t%s" % ("min", "median", "mean", "max")
-      print "%i\t%i\t%i\t%i\n" % (minimum, med, mean, maximum)
+      print "%i\t%i\t%i\t%i\n" % (min(dict[k]), find_median(dict[k]), find_mean(dict[k]), max(dict[k]))
 
-      
-      
-    
+
 
     # update statistics for the group correponding to this key
     # (minimum, median, mean, and maximum)
